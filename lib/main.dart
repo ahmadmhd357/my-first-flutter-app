@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myfirstapp/views/login_view.dart';
 import 'package:myfirstapp/views/register_view.dart';
+import 'package:myfirstapp/views/verify_email_view.dart';
 import 'firebase_options.dart';
 
 void main() {
@@ -26,6 +27,7 @@ void main() {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Firebase.initializeApp(
@@ -34,15 +36,18 @@ class HomePage extends StatelessWidget {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            // final user = FirebaseAuth.instance.currentUser;
-            // if (user?.emailVerified ?? false) {
-            //   print('you are verified');
-            // } else {
-            //   print('not verifyed');
-            //   return const VerifyEmailView();
-            // }
-            // return const Text('done');
-            return const LoginView();
+            final user = FirebaseAuth.instance.currentUser;
+            if (user != null) {
+              user.reload();
+              if (user.emailVerified == true) {
+                print('email verfiyed and all done');
+              } else {
+                return const VerifyEmailView();
+              }
+            } else {
+              return const LoginView();
+            }
+            return const Text('everything went good and we ready to move on');
           default:
             return const CircularProgressIndicator();
         }
