@@ -1,7 +1,7 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:myfirstapp/firebase_options.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -28,6 +28,7 @@ class _LoginViewState extends State<LoginView> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -55,10 +56,18 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
+                // ignore: non_constant_identifier_names
                 final UserCredential = await FirebaseAuth.instance
                     .signInWithEmailAndPassword(
                         email: email, password: password);
-                print(UserCredential);
+                if (UserCredential.user?.emailVerified == true) {
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/main/', (route) => false);
+                } else {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/email-verify/', (route) => false);
+                }
+                ;
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
                   print('User not found');
@@ -67,7 +76,6 @@ class _LoginViewState extends State<LoginView> {
                 } else {
                   print(e.code);
                 }
-                ;
               }
             },
             child: const Text('Login'),

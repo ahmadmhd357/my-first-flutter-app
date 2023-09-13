@@ -19,6 +19,8 @@ void main() {
       routes: {
         '/login/': (context) => const LoginView(),
         '/register/': (context) => const RegisterView(),
+        '/main/': (context) => const MainView(),
+        '/email-verify/': (context) => const VerifyEmailView(),
       },
     ),
   );
@@ -40,18 +42,86 @@ class HomePage extends StatelessWidget {
             if (user != null) {
               user.reload();
               if (user.emailVerified == true) {
-                print('email verfiyed and all done');
+                return const MainView();
               } else {
                 return const VerifyEmailView();
               }
             } else {
               return const LoginView();
             }
-            return const Text('everything went good and we ready to move on');
           default:
             return const CircularProgressIndicator();
         }
       },
     );
   }
+}
+
+enum MenuAction {
+  logout,
+}
+
+class MainView extends StatefulWidget {
+  const MainView({super.key});
+
+  @override
+  State<MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<MainView> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main view'),
+        actions: [
+          PopupMenuButton<MenuAction>(
+            itemBuilder: (context) {
+              return const [
+                PopupMenuItem<MenuAction>(
+                    value: MenuAction.logout, child: Text('Log out'))
+              ];
+            },
+            onSelected: (value) async {
+              switch (value) {
+                case MenuAction.logout:
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil("/login/", (_) => false);
+                  }
+                  break;
+              }
+            },
+          )
+        ],
+      ),
+      body: const Text('Hello Word'),
+    );
+  }
+}
+
+Future<bool> showLogOutDialog(BuildContext context) {
+  return showDialog(
+    context: context,
+    builder: ((context) {
+      return AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out'),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Log out')),
+        ],
+      );
+    }),
+  ).then((value) => value ?? false);
 }
