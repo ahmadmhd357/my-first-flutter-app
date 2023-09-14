@@ -3,6 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myfirstapp/constans/routes.dart';
+import 'package:myfirstapp/utilites/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -57,26 +58,25 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                // ignore: non_constant_identifier_names
-                final UserCredential = await FirebaseAuth.instance
-                    .signInWithEmailAndPassword(
-                        email: email, password: password);
-                if (UserCredential.user?.emailVerified == true) {
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(mainRoute, (route) => false);
-                } else {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      verfiyRoute, (route) => false);
-                }
-                ;
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: email,
+                  password: password,
+                );
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  mainRoute,
+                  (route) => false,
+                );
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
-                  print('User not found');
+                  await showErorrDialog(context, 'User not found');
                 } else if (e.code == 'wrong-password') {
-                  print('Wrong password');
+                  await showErorrDialog(context,
+                      'Please make sure you Email and password are correct');
                 } else {
-                  print(e.code);
+                  showErorrDialog(context, 'Error: ${e.code}');
                 }
+              } catch (e) {
+                showErorrDialog(context, 'Error: ${e.toString()}');
               }
             },
             child: const Text('Login'),
@@ -86,7 +86,9 @@ class _LoginViewState extends State<LoginView> {
               Navigator.of(context).pushNamedAndRemoveUntil(
                   registerRoute, (Route<dynamic> route) => false);
             },
-            child: const Text('Not registered yet? Register here!'),
+            child: const Text(
+              'Not registered yet? Register here!',
+            ),
           ),
         ],
       ),
