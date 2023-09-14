@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myfirstapp/constans/routes.dart';
 import 'package:myfirstapp/views/login_view.dart';
 import 'package:myfirstapp/views/register_view.dart';
 import 'package:myfirstapp/views/verify_email_view.dart';
@@ -17,10 +18,10 @@ void main() {
       ),
       home: const HomePage(),
       routes: {
-        '/login/': (context) => const LoginView(),
-        '/register/': (context) => const RegisterView(),
-        '/main/': (context) => const MainView(),
-        '/email-verify/': (context) => const VerifyEmailView(),
+        loginRoute: (context) => const LoginView(),
+        registerRoute: (context) => const RegisterView(),
+        mainRoute: (context) => const MainView(),
+        verfiyRoute: (context) => const VerifyEmailView(),
       },
     ),
   );
@@ -89,7 +90,7 @@ class _MainViewState extends State<MainView> {
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
                     Navigator.of(context)
-                        .pushNamedAndRemoveUntil("/login/", (_) => false);
+                        .pushNamedAndRemoveUntil(loginRoute, (_) => false);
                   }
                   break;
               }
