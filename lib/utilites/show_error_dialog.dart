@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<void> showErorrDialog(
+Future<void> showErrorDialog(
   BuildContext context,
   String text,
 ) {
@@ -8,7 +8,7 @@ Future<void> showErorrDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text(' Erorr ', style: TextStyle(color: Colors.red)),
+        title: const Text(' Error ', style: TextStyle(color: Colors.red)),
         content: Text(
           text,
           style: const TextStyle(color: Colors.red),
