@@ -1,8 +1,7 @@
-// ignore_for_file: avoid_print
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:myfirstapp/constans/routes.dart';
+import 'package:myfirstapp/services/auth/auth_exceptions.dart';
+import 'package:myfirstapp/services/auth/auth_service.dart';
 import 'package:myfirstapp/utilites/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -58,25 +57,20 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
-                  email: email,
-                  password: password,
-                );
+                await AuthService.firebase()
+                    .logIn(email: email, password: password);
+                     if (!context.mounted) return;
                 Navigator.of(context).pushNamedAndRemoveUntil(
                   mainRoute,
                   (route) => false,
                 );
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'user-not-found') {
-                  await showErrorDialog(context, 'User not found');
-                } else if (e.code == 'wrong-password') {
-                  await showErrorDialog(context,
-                      'Please make sure you Email and password are correct');
-                } else {
-                  showErrorDialog(context, 'Error: ${e.code}');
-                }
-              } catch (e) {
-                showErrorDialog(context, 'Error: ${e.toString()}');
+              } on UserNotFoundAuthException {
+                await showErrorDialog(context, 'User not found');
+              } on WrongPasswordAuthException {
+                await showErrorDialog(context,
+                    'Please make sure you Email and password are correct');
+              } on GenericAuthException {
+                showErrorDialog(context, 'Error: Authentication error');
               }
             },
             child: const Text('Login'),
