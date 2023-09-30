@@ -42,7 +42,6 @@ void main() {
           throwsA(const TypeMatcher<WrongPasswordAuthException>()));
       final user = await provider.creatUser(email: 'foo', password: 'bar');
       expect(provider.currentUser, user);
-      expect(user.isEmailVerified, false);
     });
     test('Should be able to log out and log in again', () async {
       await provider.logOut();
@@ -82,7 +81,7 @@ class MockAuthProvider implements AuthProvider {
     if (!isInitialized) throw NotInitializedException();
     if (email == 'foo@bar.com') throw UserNotFoundAuthException();
     if (password == 'foobar') throw WrongPasswordAuthException();
-    const user = AuthUser(false);
+    const user = AuthUser(email: 'any email');
     _user = user;
     return Future.value(user);
   }
